@@ -6,8 +6,6 @@ module.exports = {
         "es6": true
     },
     "rules": {
-        "prettier/prettier": ["error", { "singleQuote": false, "tabWidth": 4 }],
-        // enable additional rules
-        "indent": ["warn", 4]
+        "prettier/prettier": ["error", { "singleQuote": false, "tabWidth": 4 }]
     }
 }
