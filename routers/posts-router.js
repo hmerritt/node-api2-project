@@ -132,4 +132,29 @@ router.put("/:id", (req, res) => {
         });
 });
 
+//  Returns an array of all the comment objects associated
+//  with the post with the specified id
+router.get("/:id/comments", (req, res) => {
+    //  Get request body
+    const postId = req.params.id;
+
+    //  Get post
+    db.findPostComments(postId)
+        .then((comments) => {
+            if (comments.length) {
+                res.status(200).json(comments);
+            } else {
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist.",
+                });
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).json({
+                error: "The comments information could not be retrieved.",
+            });
+        });
+});
+
 module.exports = router;
