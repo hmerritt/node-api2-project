@@ -69,4 +69,40 @@ router.get("/:id", (req, res) => {
         });
 });
 
+//  Updates the post with the specified id using data from the request body.
+//  Returns the modified document, NOT the original.
+router.put("/:id", (req, res) => {
+    //  Get request body
+    const postData = req.body;
+    const postId = req.params.id;
+
+    //  Check for required post data
+    if (!postData.title || !postData.contents) {
+        res.status(400).json({
+            errorMessage: "Please provide title and contents for the post.",
+        });
+    }
+
+    //  Add record to db
+    db.update(postId, postData)
+        .then((data) => {
+            //throw "Forced error at POST: /api/posts";
+            if (data) {
+                db.findById(postId).then((data) => {
+                    res.status(201).json(data);
+                });
+            } else {
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist.",
+                });
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).json({
+                error: "The post information could not be modified.",
+            });
+        });
+});
+
 module.exports = router;
