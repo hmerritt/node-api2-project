@@ -52,9 +52,8 @@ router.get("/:id", (req, res) => {
     //  Add record to db
     db.findById(postId)
         .then((data) => {
-            //throw "Forced error at POST: /api/posts";
             if (data.length) {
-                res.status(201).json(data);
+                res.status(201).json(data[0]);
             } else {
                 res.status(404).json({
                     message: "The post with the specified ID does not exist.",
@@ -67,6 +66,35 @@ router.get("/:id", (req, res) => {
                 error: "The post information could not be retrieved.",
             });
         });
+});
+
+//  Removes the post with the specified id and returns the deleted post object.
+//  You may need to make additional calls to the database in order to satisfy this requirement
+router.delete("/:id", (req, res) => {
+    //  Get request body
+    const postId = req.params.id;
+
+    //  Get post
+    db.findById(postId).then((originalPostData) => {
+        //  Remove record to db
+        db.remove(postId)
+            .then((data) => {
+                if (data) {
+                    res.status(201).json(originalPostData[0]);
+                } else {
+                    res.status(404).json({
+                        message:
+                            "The post with the specified ID does not exist.",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                res.status(500).json({
+                    error: "The post could not be removed",
+                });
+            });
+    });
 });
 
 //  Updates the post with the specified id using data from the request body.
@@ -86,7 +114,6 @@ router.put("/:id", (req, res) => {
     //  Add record to db
     db.update(postId, postData)
         .then((data) => {
-            //throw "Forced error at POST: /api/posts";
             if (data) {
                 db.findById(postId).then((data) => {
                     res.status(201).json(data);
