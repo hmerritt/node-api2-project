@@ -138,7 +138,7 @@ router.get("/:id/comments", (req, res) => {
     //  Get request body
     const postId = req.params.id;
 
-    //  Get post
+    //  Get post comment
     db.findPostComments(postId)
         .then((comments) => {
             if (comments.length) {
@@ -153,6 +153,49 @@ router.get("/:id/comments", (req, res) => {
             console.log(error);
             res.status(500).json({
                 error: "The comments information could not be retrieved.",
+            });
+        });
+});
+
+//  Creates a comment for the post with the specified id
+//  using information sent inside of the request body
+router.post("/:id/comments", (req, res) => {
+    //  Get request body
+    let postData = req.body;
+    const postId = req.params.id;
+
+    //  Check for required post data
+    if (!postData.text) {
+        res.status(400).json({
+            errorMessage: "Please provide text for the comment.",
+        });
+    }
+
+    //  Add post id to data
+    postData = {
+        ...postData,
+        post_id: Number(postId),
+    };
+
+    //  New comment
+    db.insertComment(postData)
+        .then((comments) => {
+            if (Object.prototype.hasOwnProperty.call(comments, "id")) {
+                res.status(200).json({
+                    ...comments,
+                    ...postData,
+                });
+            } else {
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist.",
+                });
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).json({
+                error:
+                    "There was an error while saving the comment to the database.",
             });
         });
 });
